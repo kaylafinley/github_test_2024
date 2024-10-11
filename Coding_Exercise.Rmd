@@ -1,0 +1,42 @@
+---
+title: "Coding Exercise"
+author: "Kayla Finley"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+source("setup.R")
+```
+
+```{r}
+data("knz_bison")
+?knz_bison
+
+knz_bisonmutate <- knz_bison %>%
+  mutate(age = rec_year - animal_yob)
+```
+
+```{r}
+bison_function <- function(n) {
+  knz_bisonmutate %>%
+    filter(animal_weight == n)
+}
+
+weight <- bison_function(890)
+```
+
+```{r}
+knz_bisonmutate %>%
+  ggplot(aes(x = animal_sex, y = animal_weight)) +
+  geom_boxplot()
+
+knz_bisonmutate %>%
+  drop_na(animal_weight) %>%
+  t.test(animal_sex ~ animal_weight, var.equal = FALSE, detailed = TRUE) 
+```
+
