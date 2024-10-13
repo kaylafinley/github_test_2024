@@ -1,0 +1,109 @@
+---
+title: "Pull Request Exercise with Kenya Climate Data"
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+source("setup.R")
+
+
+
+```
+## Assignment Details: This assignment is worth 20 points. 10 points for successfully sbmitting a pull request, 10 points for reviewing a pull request. 
+
+## Assignment Instructions:
+
+#### Follow VERY carefully and in order!
+
+1.  If you haven't yet, **fork** the Week-1-Intro repo from our class GitHub organization (ENV-Data-Sci-FA24).
+
+2.  Make sure your local repository has all the files/changes your instructors added. To do so go to **your** forked Week-1-Intro repo, in the bar along the top click the 'Sync' dropdown and if the button says 'Update Branch', click it.
+
+3.  **SAVE** this file (in the same folder this one is located) with **YOUR** name instead of 'YOURNAME' in the file name.
+
+4.  Complete the sequence of coding tasks below (to the best of your ability).
+
+5.  Save, Add, Commit, and Push your changes to this file.
+
+6.  Go to **your** forked Week-1-Intro Repo, click the 'Contribute' drop down at the top and click the 'Open Pull Request' button (if this is grayed out that means you have not pushed any changes to GitHub yet).
+
+7.  Provide a title, short description/notes of your changes, and most importantly under 'Reviewers' on the right, type in the username of your **assigned PR reviewer** (which you can find in the 'PR_reviewer_assignments.md' document in this repository. When you are all set, submit the pull request.
+
+8.  **Review your assigned pull request**. You should receive a notification either via GitHub (you can check by clicking the 'notifications' icon directly next to your profile photo in the upper right corner), or you will receive an email link to the email you registered your GitHub account to.
+
+    Follow [these guidelines for reviewing a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/reviewing-proposed-changes-in-a-pull-request), give some meaningful feedback, and when you're done 'Approve' the pull request (do NOT close or merge).
+
+## The coding exercise:
+
+Work through the steps below to complete this exercise (to the best of your ability) and then save, add, commit and push this file with your coding edits to your forked repo and follow the instructions above for completing the assignment via creating and reviewing a pull request.
+
+Load in the tidyverse (only package(s) needed for this exercise:
+
+```{r}
+library(tidyverse)
+```
+
+Read in the 'kenya_county_climates.csv' in the 'data/' folder and assign it to an environmental variable.
+
+```{r}
+library(readr)
+kenya_county_climates <- read_csv("~/Desktop/523A/Environmental_Data_Science_24/Intro-Git-GitHub/data/kenya_county_climates.csv")
+View(kenya_county_climates)
+```
+
+Write a chain of operations that does the following:
+
+1.  `select()` just the columns that have "Precipitation" in the name (so we are only interested in the precipitation data), AND the 'County' column.
+
+```{r}
+kenya_precip <- kenya_county_climates %>%
+  select(contains("Precipitation"))
+```
+
+
+2.  `filter()` all the rows where 'Precipitation_585_90' is **greater than** the mean precipitation for all counties.
+
+```{r}
+kenya_precip %>%
+  summarise(P_90_mean = mean(Precipitation_585_90, na.rm = TRUE)) %>%
+  view()
+
+
+kenya_filtered <- kenya_precip %>%
+  filter(Precipitation_585_90 > 151.11)
+```
+
+
+3.  `pivot_longer()` so we have one column for all precip values and one column with the value's associated variables (while keeping County as its own column too).
+
+```{r}
+kenya_long <- kenya_precip %>%
+  pivot_longer(
+    cols = starts_with("Precip"), 
+    names_to = "Projection",            
+    values_to = "Precipitation")
+  
+```
+
+Question: How many counties have predicted precip values greater than the total county average?
+
+Using the new dataset created above, create a bar plot of precipitation for each time frame for each county using `facet_wrap()`
+
+```{r}
+kenya_long %>%
+  ggplot(aes(x = Projection, y = Precipitation)) +
+  geom_boxplot() +
+  facet_wrap()
+
+```
+
+CHALLENGE:
+
+The chart above is messy since we have so many counties. Instead, use `map()` to create an individual bar plot for each County (hint: create a vector of county names from the data, and building off the ggplot code you made above, add in a line to `filter()` out each county (i.e., .x) before creating the plot. AND, no more need to `facet_wrap()` here).
+
+There are many ways to do this!
+
+
